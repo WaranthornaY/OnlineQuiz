@@ -55,7 +55,7 @@ function renderAdminScores() {
     Object.keys(groups).forEach(user => {
         const g = groups[user];
         const historyHTML = g.all.map(s => `<div>${s.date}: ${s.score}/${s.total}</div>`).join('');
-        list.innerHTML += `<li class="admin-row"><div class="tooltip-wrap"><b>${user}</b>: <span contenteditable="true" id="edit-${g.bestIdx}">${g.best.score}</span>/${g.best.total}<div class="admin-tooltip">${historyHTML}</div></div>
+        list.innerHTML += `<li class="admin-row"><div class="tooltip-wrap"><b>${user}</b>: <span contenteditable="true" class="edit-score" id="edit-${g.bestIdx}">${g.best.score}</span>/${g.best.total}<div class="admin-tooltip">${historyHTML}</div></div>
             <div><button onclick="saveEdit(${g.bestIdx})" style="background:#28a745; font-size:10px;">Save</button><button onclick="delScore(${g.bestIdx})" style="color:red; background:none; font-size:10px;">Del</button></div></li>`;
     });
 }
@@ -102,7 +102,7 @@ function showQuestion() {
 document.getElementById('next-btn').onclick = () => { currentIdx++; showQuestion(); };
 
 document.getElementById('finish-btn').onclick = () => {
-    document.getElementById('finish-btn').classList.add('hide'); // Spam fix
+    document.getElementById('finish-btn').classList.add('hide');
     let history = JSON.parse(localStorage.getItem('quiz_scores')) || [];
     history.push({ user: activeUser, score, total: shuffled.length, date: new Date().toLocaleDateString() });
     localStorage.setItem('quiz_scores', JSON.stringify(history)); showUserHistory();
@@ -130,6 +130,15 @@ window.previewCert = (data) => {
 
 window.downloadPDF = (name) => {
     const el = document.getElementById('cert-capture');
-    const opt = { margin: 0, filename: `${name}_Cert.pdf`, jsPDF: { orientation: 'landscape', format: 'a4' }, html2canvas: { scale: 3, useCORS: true } };
+    const opt = { 
+        margin: 0, 
+        filename: `${name}_Cert.pdf`, 
+        jsPDF: { orientation: 'landscape', format: 'a4' }, 
+        html2canvas: { 
+            scale: 3, 
+            useCORS: true, 
+            allowTaint: true 
+        } 
+    };
     html2pdf().from(el).set(opt).save();
 };
