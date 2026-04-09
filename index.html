@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>School Portal</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Essential PDF Library -->
     <script src="https://cloudflare.com"></script>
 </head>
 <body>
@@ -36,8 +37,14 @@
         <div class="input-group">
             <h4>Add New Question</h4>
             <input type="text" id="new-question" placeholder="Question Text">
-            <div class="ans-row"><input type="text" id="ans-1" placeholder="Choice 1"><input type="checkbox" id="check-1"> Correct?</div>
-            <div class="ans-row"><input type="text" id="ans-2" placeholder="Choice 2"><input type="checkbox" id="check-2"> Correct?</div>
+            <div style="display:flex; gap:5px; align-items:center;">
+                <input type="text" id="ans-1" placeholder="Choice 1" style="flex:1;">
+                <input type="checkbox" id="check-1"> Correct?
+            </div>
+            <div style="display:flex; gap:5px; align-items:center;">
+                <input type="text" id="ans-2" placeholder="Choice 2" style="flex:1;">
+                <input type="checkbox" id="check-2"> Correct?
+            </div>
             <button id="add-question-btn" style="background:#28a745;">Add to Quiz</button>
         </div>
         <ul id="teacher-question-list"></ul>
@@ -64,9 +71,9 @@
         </div>
     </div>
 
-    <!-- 6. CERTIFICATE TEMPLATE -->
+    <!-- 6. CERTIFICATE (Using Local GitHub Image) -->
     <div id="certificate-template" style="display: none;">
-        <div id="cert-capture" style="width: 900px; height: 636px; background-image: url('https://ibb.co'); background-size: cover; position: relative; margin: auto; font-family: Arial, sans-serif; background-color: white;">
+        <div id="cert-capture" style="width: 900px; height: 636px; background-image: url('certificate.png'); background-size: cover; position: relative; margin: auto; font-family: Arial, sans-serif; background-color: white;">
             <h2 id="cert-name" style="position: absolute; top: 48%; left: 50%; transform: translate(-50%, -50%); font-size: 42px; color: #333; width: 100%; text-align: center; font-weight: bold;"></h2>
             <h3 id="cert-score" style="position: absolute; top: 62%; left: 50%; transform: translate(-50%, -50%); font-size: 22px; color: #555;"></h3>
             <p style="position: absolute; bottom: 85px; right: 100px; font-size: 16px;">Date: <span id="cert-date"></span></p>
