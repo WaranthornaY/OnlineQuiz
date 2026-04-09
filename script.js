@@ -1,4 +1,4 @@
-const students = { "student1": "Student_1", "student2": "Student_2" };
+const students = { "student1": "Student_1", "student2": "Student_2", "student3": "Student_3" };
 const adminCreds = { "user": "admin", "pass": "Admin123456" };
 const teacherCreds = { "user": "teacher", "pass": "Teacher123456" };
 const PASS_RATE = 0.7;
