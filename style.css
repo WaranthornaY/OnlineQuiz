@@ -1,14 +1,19 @@
-body { background: #f0f2f5; font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-.container { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 440px; text-align: center; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f4f8; display: flex; justify-content: center; padding: 20px; }
+.container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); width: 100%; max-width: 480px; min-height: 400px; }
 .hide { display: none !important; }
-.input-group { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
-input { padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
-.btn-grid { display: grid; gap: 10px; margin: 20px 0; }
-button { padding: 12px; cursor: pointer; border: none; border-radius: 6px; background: #007bff; color: white; font-weight: bold; }
-.secondary { background: #6c757d; }
-.cert-btn { background: #d4af37; color: black; width: 100%; padding: 15px; margin-top: 15px; border-radius: 8px; font-weight: bold; }
-.small-btn { padding: 5px 10px; font-size: 0.7rem; background: #343a40; }
-.admin-row { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 10px 0; align-items: center; }
-.tooltip-wrap { position: relative; cursor: help; }
-.admin-tooltip { visibility: hidden; width: 180px; background: #222; color: #fff; padding: 8px; border-radius: 6px; position: absolute; bottom: 110%; left: 0; opacity: 0; transition: 0.3s; font-size: 0.8rem; z-index: 100; pointer-events: none; }
-.tooltip-wrap:hover .admin-tooltip { visibility: visible; opacity: 1; }
+
+h1, h2, h3 { color: #2c3e50; text-align: center; }
+input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #d1d8e0; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; transition: 0.3s; font-size: 15px; color: white; background: #3498db; }
+button:hover { opacity: 0.8; transform: translateY(-1px); }
+button:disabled { background: #bdc3c7; cursor: not-allowed; }
+
+.success-btn { background: #27ae60; }
+.secondary-btn { background: #95a5a6; }
+.toggle-text { text-align: center; margin-top: 15px; color: #7f8c8d; }
+
+.admin-student-card { border: 1px solid #ecf0f1; padding: 15px; margin: 10px 0; border-radius: 10px; background: #fff; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+.admin-student-card:hover { border-color: #3498db; }
+
+ul { list-style: none; padding: 0; }
+li { background: #f9f9f9; padding: 10px; margin: 5px 0; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #3498db; }
