@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, collection, getDocs, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, collection, getDocs, onSnapshot, writeBatch, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCmgXIu6snhLCYQz8b_aSGVQc99zg17MjE",
@@ -13,188 +13,204 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// AUTH CONFIG
-const teacherCreds = { user: "teacher", pass: "Teacher123" };
-const adminCreds = { user: "admin", pass: "Admin123" };
-let activeUser = "", currentQuestions = [], shuffled = [], currentIdx = 0, score = 0, currentRoomCode = "";
+let activeUser = "", currentQuestions = [], shuffled = [], currentIdx = 0, score = 0, timerInterval;
 
-// NAVIGATION HELPER
 const show = (id) => {
     ['login-container', 'signup-container', 'menu-container', 'teacher-panel', 'admin-panel', 'quiz-container'].forEach(p => document.getElementById(p).classList.add('hide'));
     document.getElementById(id).classList.remove('hide');
 };
 
-// --- AUTHENTICATION ---
-document.getElementById('go-to-signup').onclick = () => show('signup-container');
-document.getElementById('back-to-login').onclick = () => show('login-container');
-
-document.getElementById('signup-submit-btn').onclick = async () => {
-    const u = document.getElementById('new-username').value.trim().toLowerCase();
-    const p = document.getElementById('new-password').value;
-    if(!u || !p) return alert("Please fill all fields");
-    try {
-        await setDoc(doc(db, "users", u), { username: u, password: p });
-        alert("Success! Account created."); show('login-container');
-    } catch(e) { alert("Error creating account."); }
-};
-
+// --- AUTH ---
 document.getElementById('login-btn').onclick = async () => {
     const u = document.getElementById('username').value.trim().toLowerCase();
     const p = document.getElementById('password').value;
-
-    if (u === teacherCreds.user && p === teacherCreds.pass) return show('teacher-panel');
-    if (u === adminCreds.user && p === adminCreds.pass) { renderAdminScores(); return show('admin-panel'); }
-
+    if (u === "teacher" && p === "Teacher123") return show('teacher-panel');
+    if (u === "admin" && p === "Admin123") { renderAdmin(); return show('admin-panel'); }
     try {
         const snap = await getDoc(doc(db, "users", u));
         if (snap.exists() && snap.data().password === p) {
-            activeUser = u;
-            document.getElementById('menu-welcome').innerText = `Hello, ${activeUser}`;
-            show('menu-container');
-        } else alert("Invalid username or password");
-    } catch(e) { alert("Login failed. Check connection."); }
+            activeUser = u; document.getElementById('menu-welcome').innerText = "Student: " + u; show('menu-container');
+        } else alert("Invalid Login");
+    } catch(e) { alert("Error connecting to DB"); }
 };
 
-// --- TEACHER CONTROL ---
+document.getElementById('go-to-signup').onclick = () => show('signup-container');
+document.getElementById('back-to-login').onclick = () => show('login-container');
+document.getElementById('signup-submit-btn').onclick = async () => {
+    const u = document.getElementById('new-username').value.trim().toLowerCase();
+    const p = document.getElementById('new-password').value;
+    if (!u || !p) return alert("Fill all fields");
+    await setDoc(doc(db, "users", u), { password: p });
+    alert("Registered!"); show('login-container');
+};
+
+// --- TEACHER AUTO-LOAD & DELETE ---
 document.getElementById('room-code-input').oninput = async (e) => {
     const code = e.target.value.trim();
-    if(!code) return;
+    if (code.length < 1) { currentQuestions = []; renderTeacherQuestions(); return; }
     const snap = await getDoc(doc(db, "quizzes", code));
-    if(snap.exists()){
-        const d = snap.data();
-        currentQuestions = d.questions || [];
-        document.getElementById('end-session-btn').classList.toggle('hide', d.active === false);
-        document.getElementById('open-session-btn').classList.toggle('hide', d.active !== false);
-    } else { currentQuestions = []; }
-    renderTeacherList();
+    currentQuestions = snap.exists() ? (snap.data().questions || []) : [];
+    renderTeacherQuestions();
 };
 
-async function updateRoomState(status) {
+async function renderTeacherQuestions() {
+    const list = document.getElementById('t-q-list');
     const code = document.getElementById('room-code-input').value.trim();
-    if(!code) return alert("Enter Room Code first");
-    await updateDoc(doc(db, "quizzes", code), { active: status });
-    document.getElementById('end-session-btn').classList.toggle('hide', !status);
-    document.getElementById('open-session-btn').classList.toggle('hide', status);
-}
-document.getElementById('end-session-btn').onclick = () => updateRoomState(false);
-document.getElementById('open-session-btn').onclick = () => updateRoomState(true);
-
-document.getElementById('add-question-btn').onclick = async () => {
-    const code = document.getElementById('room-code-input').value.trim();
-    const q = document.getElementById('new-question').value;
-    if(!code || !q) return alert("Missing Room or Question");
-    currentQuestions.push({
-        q, a: [
-            { t: document.getElementById('ans-1').value, c: document.getElementById('check-1').checked },
-            { t: document.getElementById('ans-2').value, c: document.getElementById('check-2').checked }
-        ]
+    list.innerHTML = currentQuestions.length ? "" : "<p style='font-size:11px; color:#999'>No questions yet.</p>";
+    
+    currentQuestions.forEach((q, index) => {
+        const item = document.createElement('div');
+        item.className = "t-q-item";
+        item.innerHTML = `<span>${index + 1}. ${q.q}</span> <button class="del-btn">Delete</button>`;
+        item.querySelector('.del-btn').onclick = async () => {
+            currentQuestions.splice(index, 1);
+            if (code) await setDoc(doc(db, "quizzes", code), { questions: currentQuestions }, { merge: true });
+            renderTeacherQuestions();
+        };
+        list.appendChild(item);
     });
-    await setDoc(doc(db, "quizzes", code), { questions: currentQuestions, active: true }, { merge: true });
-    renderTeacherList();
+}
+
+document.getElementById('add-choice-btn').onclick = () => {
+    const row = document.createElement('div'); row.className = "choice-row";
+    row.innerHTML = `<input type="checkbox" class="c-check"><input type="text" class="c-text" placeholder="Choice"><button onclick="this.parentElement.remove()" style="width:25px;background:red;padding:0">x</button>`;
+    document.getElementById('choices-area').appendChild(row);
 };
 
-function renderTeacherList() {
-    document.getElementById('teacher-question-list').innerHTML = currentQuestions.map((q, i) => `
-        <li><span>${q.q}</span> <button onclick="window.delQ(${i})" style="width:30px; background:red; padding:2px;">X</button></li>
-    `).join('');
-}
-window.delQ = async (i) => {
-    currentQuestions.splice(i, 1);
-    await updateDoc(doc(db, "quizzes", document.getElementById('room-code-input').value.trim()), { questions: currentQuestions });
-    renderTeacherList();
+document.getElementById('save-q-btn').onclick = async () => {
+    const code = document.getElementById('room-code-input').value.trim();
+    const qText = document.getElementById('main-q-input').value.trim();
+    if (!code || !qText) return alert("Enter Code and Question");
+    let opts = [];
+    document.querySelectorAll('.choice-row').forEach(r => {
+        const t = r.querySelector('.c-text').value.trim();
+        if (t) opts.push({ t, c: r.querySelector('.c-check').checked });
+    });
+    currentQuestions.push({ q: qText, a: opts });
+    await setDoc(doc(db, "quizzes", code), { questions: currentQuestions }, { merge: true });
+    document.getElementById('main-q-input').value = "";
+    renderTeacherQuestions();
+};
+
+document.getElementById('toggle-live-btn').onclick = async () => {
+    const code = document.getElementById('room-code-input').value.trim();
+    const status = document.getElementById('room-status-text');
+    const isNowLive = status.innerText === "OFFLINE";
+    await setDoc(doc(db, "quizzes", code), { active: isNowLive, students: [] }, { merge: true });
+    status.innerText = isNowLive ? "LIVE" : "OFFLINE";
+    status.style.color = isNowLive ? "green" : "red";
+    document.getElementById('toggle-live-btn').innerText = isNowLive ? "Stop" : "Go Live";
+    if (isNowLive) {
+        document.getElementById('student-lobby').classList.remove('hide');
+        onSnapshot(doc(db, "quizzes", code), (s) => {
+            const studs = s.data().students || [];
+            document.getElementById('lobby-list').innerText = studs.join(", ") || "Waiting...";
+        });
+    }
 };
 
 // --- QUIZ ENGINE ---
 document.getElementById('start-quiz-btn').onclick = async () => {
-    const code = prompt("Enter Room Code:");
-    if(!code) return;
+    const code = prompt("Room Code:");
+    if (!code) return;
     const snap = await getDoc(doc(db, "quizzes", code));
-    if(!snap.exists()) return alert("Room not found");
-    if(snap.data().active === false) return alert("Teacher has closed this room.");
+    if (!snap.exists() || !snap.data().active) return alert("Room Offline");
+    
+    let students = snap.data().students || [];
+    if (!students.includes(activeUser)) {
+        students.push(activeUser);
+        await setDoc(doc(db, "quizzes", code), { students }, { merge: true });
+    }
 
-    currentRoomCode = code;
-    shuffled = snap.data().questions.sort(() => Math.random() - 0.5);
-    currentIdx = 0; score = 0;
-    
-    document.getElementById('quiz-info-bar').style.display = "flex";
-    document.getElementById('display-username').innerText = activeUser;
-    document.getElementById('display-room').innerText = currentRoomCode;
-    
-    show('quiz-container'); showQuestion();
+    shuffled = (snap.data().questions || []).sort(() => Math.random() - 0.5);
+    currentIdx = 0; score = 0; show('quiz-container');
+    document.getElementById('post-quiz').classList.add('hide');
+    startTimer(60); showQuestion();
 };
 
+function startTimer(t) {
+    let left = t;
+    document.getElementById('quiz-timer-bar').classList.remove('hide');
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        left--;
+        document.getElementById('timer-text').innerText = left + "s";
+        document.getElementById('timer-progress').style.width = (left/t*100) + "%";
+        if (left <= 0) { clearInterval(timerInterval); finish(); }
+    }, 1000);
+}
+
 function showQuestion() {
-    document.getElementById('next-btn').classList.add('hide');
     const q = shuffled[currentIdx];
-    document.getElementById('question-header').innerText = q.q;
-    const box = document.getElementById('answer-buttons'); box.innerHTML = "";
+    document.getElementById('q-header').innerText = q.q;
+    const box = document.getElementById('ans-box'); box.innerHTML = "";
     q.a.forEach(ans => {
         const b = document.createElement('button'); b.innerText = ans.t;
         b.onclick = () => {
-            if(ans.c) score++; b.style.background = ans.c ? "#27ae60" : "#e74c3c";
+            if (ans.c) score++;
+            b.style.background = ans.c ? "#2ecc71" : "#e74c3c";
             Array.from(box.children).forEach(btn => btn.disabled = true);
-            if(currentIdx < shuffled.length - 1) document.getElementById('next-btn').classList.remove('hide');
+            if (currentIdx < shuffled.length - 1) document.getElementById('next-btn').classList.remove('hide');
             else document.getElementById('finish-btn').classList.remove('hide');
         };
         box.appendChild(b);
     });
 }
 
-document.getElementById('next-btn').onclick = () => { currentIdx++; showQuestion(); };
-
-document.getElementById('finish-btn').onclick = async () => {
-    const btn = document.getElementById('finish-btn'); btn.disabled = true; btn.innerText = "Saving...";
-    const pct = (score / shuffled.length) * 100;
-    const passed = pct >= 80;
-    const res = { user: activeUser, score, total: shuffled.length, pct, room: currentRoomCode, date: new Date().toLocaleDateString() };
-    
-    await setDoc(doc(db, "results", `${activeUser}_${Date.now()}`), res);
-    
-    const area = document.getElementById('cert-download-area');
-    if(passed) {
-        area.innerHTML = `<h2 style="color:green;">Congratulations! ${pct.toFixed(0)}%</h2><button onclick="window.dlCert()" style="background:#d4af37; color:black;">📥 Download Certificate</button>`;
-        document.getElementById('cert-name').innerText = activeUser.toUpperCase();
-        document.getElementById('cert-score').innerText = `Score: ${pct.toFixed(0)}% (${score}/${shuffled.length})`;
-        document.getElementById('cert-date').innerText = res.date;
-    } else {
-        area.innerHTML = `<h2 style="color:red;">Score: ${pct.toFixed(0)}%</h2><p>You need 80% to earn a certificate.</p>`;
-    }
-    document.getElementById('history-section').classList.remove('hide');
+document.getElementById('next-btn').onclick = () => {
+    currentIdx++; document.getElementById('next-btn').classList.add('hide'); showQuestion();
 };
 
-window.dlCert = () => {
-    const el = document.getElementById('cert-capture');
-    const temp = document.getElementById('certificate-template');
-    temp.style.display = "block";
-    html2pdf().from(el).set({ margin:0, filename:'Cert.pdf', html2canvas:{scale:2}, jsPDF:{unit:'px', format:[900, 636], orientation:'landscape'} }).save().then(() => temp.style.display="none");
-};
-
-// --- ADMIN CONTROLS ---
-async function renderAdminScores() {
-    const snap = await getDocs(collection(db, "results"));
-    const data = {};
-    snap.forEach(d => {
-        const r = d.data();
-        if(!data[r.user] || r.pct > data[r.user].best.pct) data[r.user] = { best: r, all: [...(data[r.user]?.all || []), r] };
-        else data[r.user].all.push(r);
+const finish = async () => {
+    clearInterval(timerInterval);
+    const pct = Math.round((score / (shuffled.length || 1)) * 100);
+    const now = new Date();
+    const timeStr = now.getHours() + ":" + now.getMinutes().toString().padStart(2, '0');
+    
+    await setDoc(doc(db, "results", activeUser + "_" + Date.now()), { 
+        user: activeUser, pct, date: now.toLocaleDateString(), time: timeStr, ts: Date.now() 
     });
-    document.getElementById('admin-score-list').innerHTML = Object.keys(data).map(u => `
-        <div class="admin-student-card" onclick="window.tglAdmin('${u}')">
-            <strong>${u.toUpperCase()}</strong> - Best: ${data[u].best.pct.toFixed(0)}%
-            <div id="h-${u}" class="hide"><hr>${data[u].all.map(a => `<div>${a.date}: ${a.pct.toFixed(0)}%</div>`).join('')}</div>
-        </div>
-    `).join('');
-}
-window.tglAdmin = (u) => document.getElementById(`h-${u}`).classList.toggle('hide');
+    
+    document.getElementById('q-header').innerText = "Done!";
+    document.getElementById('ans-box').innerHTML = `<h3>You got ${pct}%</h3>`;
+    document.getElementById('finish-btn').classList.add('hide');
+    if (pct >= 80) document.getElementById('ans-box').innerHTML += `<button onclick="window.dlPdf(${pct})">Download Cert</button>`;
+    document.getElementById('post-quiz').classList.remove('hide');
+};
+document.getElementById('finish-btn').onclick = finish;
 
-// Master Wipe Functions
-async function wipeCollection(name) {
-    if(!confirm(`Delete all ${name}? This is permanent!`)) return;
-    const snap = await getDocs(collection(db, name));
-    const batch = writeBatch(db);
-    snap.forEach(d => batch.delete(d.ref));
-    await batch.commit();
-    alert("Wipe Complete."); location.reload();
+// --- ADMIN (Score Right + Time) ---
+async function renderAdmin() {
+    const snap = await getDocs(collection(db, "results"));
+    const grouped = {};
+    snap.forEach(d => { const r = d.data(); if(!grouped[r.user]) grouped[r.user] = []; grouped[r.user].push(r); });
+    const box = document.getElementById('admin-score-list'); box.innerHTML = "";
+    
+    Object.keys(grouped).forEach(u => {
+        const best = Math.max(...grouped[u].map(x=>x.pct));
+        const item = document.createElement('div'); item.className="admin-item";
+        item.innerHTML = `
+            <span class="admin-name">${u.toUpperCase()}</span> 
+            <span class="admin-score">${best}%</span>
+            <div class="tooltip">
+                <strong>Full History:</strong><hr>
+                ${grouped[u].map(x=>`<div>${x.date} ${x.time || ''} - ${x.pct}%</div>`).join('')}
+            </div>`;
+        box.appendChild(item);
+    });
 }
-document.getElementById('wipe-results-btn').onclick = () => wipeCollection("results");
-document.getElementById('wipe-users-btn').onclick = () => wipeCollection("users");
+
+document.getElementById('export-btn').onclick = async () => {
+    const snap = await getDocs(collection(db, "results"));
+    const data = snap.docs.map(d => d.data());
+    const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Scores"); XLSX.writeFile(wb, "Report.xlsx");
+};
+
+window.dlPdf = (pct) => {
+    document.getElementById('pdf-name').innerText = activeUser.toUpperCase();
+    document.getElementById('pdf-score').innerText = pct + "%";
+    document.getElementById('pdf-date').innerText = new Date().toLocaleDateString();
+    const el = document.getElementById('cert-pdf'); const wrap = document.getElementById('cert-wrap');
+    wrap.style.display="block"; html2pdf().from(el).set({filename:'Cert.pdf', jsPDF:{orientation:'landscape'}}).save().then(()=>wrap.style.display="none");
+};
