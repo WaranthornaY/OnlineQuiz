@@ -3,94 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OnlineQuiz Portal</title>
+    <title>Quiz Pro - Final Build</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
 <div class="container">
+    <div id="quiz-timer-bar" class="hide"><div id="timer-progress"></div><span id="timer-text">60s</span></div>
+
     <div id="login-container">
-        <h1>Portal Login</h1>
+        <h1>Quiz System</h1>
         <input type="text" id="username" placeholder="Username">
         <input type="password" id="password" placeholder="Password">
         <button id="login-btn">Login</button>
-        <p class="toggle-text">New student? <a href="#" id="go-to-signup">Sign up here</a></p>
+        <p>New? <a href="#" id="go-to-signup">Create Account</a></p>
     </div>
 
     <div id="signup-container" class="hide">
-        <h1>Create Student Account</h1>
-        <input type="text" id="new-username" placeholder="Choose Username">
-        <input type="password" id="new-password" placeholder="Choose Password">
-        <button id="signup-submit-btn" class="success-btn">Register Account</button>
-        <button id="back-to-login" class="secondary-btn">Back to Login</button>
+        <h1>Sign Up</h1>
+        <input type="text" id="new-username" placeholder="New Username">
+        <input type="password" id="new-password" placeholder="New Password">
+        <button id="signup-submit-btn" class="success-btn">Register</button>
+        <button id="back-to-login" class="secondary-btn">Back</button>
     </div>
 
     <div id="menu-container" class="hide">
         <h2 id="menu-welcome"></h2>
-        <div id="quiz-info-bar" style="display:none; justify-content:space-between; padding:10px; background:#f0f0f0; border-radius:5px; margin-bottom:10px; font-size: 0.9em;">
-            <span>User: <strong id="display-username"></strong></span>
-            <span>Room: <strong id="display-room"></strong></span>
+        <button id="start-quiz-btn" class="success-btn">Start Live Quiz</button>
+        <button id="view-history-btn" style="background: #34495e;">📜 My Results</button>
+        <div id="history-modal" class="hide history-box">
+            <h3>My Scores</h3>
+            <div class="table-scroll"><table><thead><tr><th>Date</th><th>Room</th><th>Score</th></tr></thead><tbody id="history-table-body"></tbody></table></div>
+            <button id="close-history-btn" class="secondary-btn">Close</button>
         </div>
-        <button id="start-quiz-btn" class="success-btn">Join Live Room</button>
         <button onclick="location.reload()" class="secondary-btn">Logout</button>
     </div>
 
     <div id="teacher-panel" class="hide">
-        <h3>Teacher Dashboard</h3>
-        <input type="text" id="room-code-input" placeholder="Room Code (e.g., 101)">
+        <h3>Teacher Control</h3>
+        <input type="text" id="room-code-input" placeholder="Type Room Code to Auto-Load...">
         
-        <div class="server-controls" style="display:flex; gap:10px;">
-            <button id="end-session-btn" style="background: #dc3545;">🔴 Stop Server</button>
-            <button id="open-session-btn" class="success-btn hide">🟢 Start Server</button>
+        <div class="status-card">
+            <span>Status: <strong id="room-status-text" style="color:red">OFFLINE</strong></span>
+            <button id="toggle-live-btn">Go Live</button>
         </div>
 
-        <div class="add-q-box" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin: 15px 0;">
-            <h4>Add New Question</h4>
-            <input type="text" id="new-question" placeholder="Question Text">
-            <div style="display:flex; gap:5px; align-items:center;">
-                <input type="text" id="ans-1" placeholder="Option 1">
-                <input type="checkbox" id="check-1"> Correct
+        <div id="student-lobby" class="hide lobby-area"><strong>Lobby:</strong> <span id="lobby-list">Waiting...</span></div>
+
+        <div class="q-box">
+            <input type="text" id="main-q-input" placeholder="New Question Text">
+            <div id="choices-area">
+                <div class="choice-row"><input type="checkbox" class="c-check"><input type="text" class="c-text" placeholder="Choice 1"></div>
             </div>
-            <div style="display:flex; gap:5px; align-items:center;">
-                <input type="text" id="ans-2" placeholder="Option 2">
-                <input type="checkbox" id="check-2"> Correct
-            </div>
-            <button id="add-question-btn" class="success-btn">Save to Room</button>
+            <button id="add-choice-btn" class="small-btn">+ Add Choice</button>
+            <button id="save-q-btn" class="success-btn">Save to Room</button>
         </div>
-        <ul id="teacher-question-list"></ul>
+
+        <div id="t-q-list" style="margin-top:15px; border-top: 2px solid #eee; padding-top:10px;"></div>
         <button onclick="location.reload()" class="secondary-btn">Logout</button>
     </div>
 
     <div id="admin-panel" class="hide">
         <h3>Admin Dashboard</h3>
-        <div id="admin-score-list"></div>
-        <hr>
-        <div class="danger-zone">
-            <button id="wipe-results-btn" style="background: #f39c12;">Clear All Scores</button>
-            <button id="wipe-users-btn" style="background: #dc3545;">Wipe Student Accounts</button>
-        </div>
+        <div id="admin-score-list" style="margin-bottom:15px;"></div>
+        <button id="export-btn" style="background:#27ae60;">📊 Export Excel</button>
         <button onclick="location.reload()" class="secondary-btn">Logout</button>
     </div>
 
     <div id="quiz-container" class="hide">
-        <h2 id="question-header"></h2>
-        <div id="answer-buttons" class="btn-grid"></div>
-        <button id="next-btn" class="hide">Next Question</button>
-        <button id="finish-btn" class="hide">Finish & Save</button>
-        
-        <div id="history-section" class="hide">
-            <div id="cert-download-area" style="text-align:center; margin:20px 0;"></div>
-            <button onclick="location.reload()" class="secondary-btn">Back to Menu</button>
+        <h2 id="q-header"></h2>
+        <div id="ans-box"></div>
+        <button id="next-btn" class="hide">Next</button>
+        <button id="finish-btn" class="hide" style="background:#2ecc71;">Finish</button>
+        <div id="post-quiz" class="hide">
+            <div id="score-display"></div>
+            <button onclick="location.reload()" class="secondary-btn">Exit</button>
         </div>
     </div>
 </div>
 
-<div id="certificate-template" style="display:none; position: fixed; left: -9999px;">
-    <div id="cert-capture" style="width: 900px; height: 636px; background-image: url('certificate.png'); background-size: cover; position: relative; background-color: white;">
-        <h2 id="cert-name" style="position: absolute; top: 48%; left: 50%; transform: translate(-50%, -50%); font-size: 42px; color: #222; width: 100%; text-align: center; font-weight: bold; font-family: serif;"></h2>
-        <h3 id="cert-score" style="position: absolute; top: 62%; left: 50%; transform: translate(-50%, -50%); font-size: 24px; color: #444; width: 100%; text-align: center;"></h3>
-        <p style="position: absolute; bottom: 85px; right: 100px; font-size: 18px; color: #333;">Date: <span id="cert-date"></span></p>
+<div id="cert-wrap" style="display:none; position:fixed; left:-9999px;">
+    <div id="cert-pdf" style="width:800px; height:600px; padding:50px; border:20px solid #2c3e50; text-align:center; background:white;">
+        <h1>CERTIFICATE</h1>
+        <h2 id="pdf-name" style="font-size:40px; color:#1a73e8;"></h2>
+        <h3 id="pdf-score" style="font-size:30px;"></h3>
+        <p>Date: <span id="pdf-date"></span></p>
     </div>
 </div>
 
