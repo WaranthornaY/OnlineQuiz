@@ -1,16 +1,14 @@
 * { box-sizing: border-box; }
-body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-.container { background: white; width: 420px; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+body { background: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+.container { background: white; width: 100%; max-width: 400px; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+
+/* This is what makes the screens switch */
 .hide { display: none !important; }
 
-button { width: 100%; padding: 12px; margin: 8px 0; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; background: #1a73e8; }
-input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; }
-
-/* Admin Alignment: Name Left, Score Right */
-.admin-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #eee; position: relative; }
-.admin-name { font-weight: 600; color: #333; }
-.admin-score { font-weight: 800; color: #2ecc71; }
-
-.tooltip { display: none; position: absolute; left: 105%; top: 0; width: 220px; background: #2c3e50; color: white; padding: 12px; border-radius: 8px; z-index: 10; font-size: 11px; box-shadow: 5px 5px 15px rgba(0,0,0,0.2); }
-.admin-item:hover .tooltip { display: block; }
+h1, h2, h3 { text-align: center; color: #1a73e8; }
+input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; }
+button { width: 100%; padding: 12px; margin: 10px 0; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; background: #1a73e8; transition: 0.2s; }
+button:hover { opacity: 0.9; }
 .secondary-btn { background: #6c757d; }
+
+.admin-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; }
