@@ -3,96 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Pro - Final Build</title>
+    <title>Quiz Pro - Secure Admin</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
-
-<div class="container">
-    <div id="quiz-timer-bar" class="hide"><div id="timer-progress"></div><span id="timer-text">60s</span></div>
-
-    <div id="login-container">
-        <h1>Quiz System</h1>
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
-        <button id="login-btn">Login</button>
-        <p>New? <a href="#" id="go-to-signup">Create Account</a></p>
-    </div>
-
-    <div id="signup-container" class="hide">
-        <h1>Sign Up</h1>
-        <input type="text" id="new-username" placeholder="New Username">
-        <input type="password" id="new-password" placeholder="New Password">
-        <button id="signup-submit-btn" class="success-btn">Register</button>
-        <button id="back-to-login" class="secondary-btn">Back</button>
-    </div>
-
-    <div id="menu-container" class="hide">
-        <h2 id="menu-welcome"></h2>
-        <button id="start-quiz-btn" class="success-btn">Start Live Quiz</button>
-        <button id="view-history-btn" style="background: #34495e;">📜 My Results</button>
-        <div id="history-modal" class="hide history-box">
-            <h3>My Scores</h3>
-            <div class="table-scroll"><table><thead><tr><th>Date</th><th>Room</th><th>Score</th></tr></thead><tbody id="history-table-body"></tbody></table></div>
-            <button id="close-history-btn" class="secondary-btn">Close</button>
-        </div>
-        <button onclick="location.reload()" class="secondary-btn">Logout</button>
-    </div>
-
-    <div id="teacher-panel" class="hide">
-        <h3>Teacher Control</h3>
-        <input type="text" id="room-code-input" placeholder="Type Room Code to Auto-Load...">
-        
-        <div class="status-card">
-            <span>Status: <strong id="room-status-text" style="color:red">OFFLINE</strong></span>
-            <button id="toggle-live-btn">Go Live</button>
+    <div class="container">
+        <div id="login-container">
+            <h1>Secure Quiz Login</h1>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button id="login-btn">Login</button>
         </div>
 
-        <div id="student-lobby" class="hide lobby-area"><strong>Lobby:</strong> <span id="lobby-list">Waiting...</span></div>
-
-        <div class="q-box">
-            <input type="text" id="main-q-input" placeholder="New Question Text">
-            <div id="choices-area">
-                <div class="choice-row"><input type="checkbox" class="c-check"><input type="text" class="c-text" placeholder="Choice 1"></div>
-            </div>
-            <button id="add-choice-btn" class="small-btn">+ Add Choice</button>
-            <button id="save-q-btn" class="success-btn">Save to Room</button>
+        <div id="admin-panel" class="hide">
+            <h3>System Administrator</h3>
+            <div id="admin-score-list"></div>
+            <button id="export-btn" style="background:#27ae60; margin-top:15px;">📊 Export Scores</button>
+            <button onclick="location.reload()" class="secondary-btn">Logout</button>
         </div>
 
-        <div id="t-q-list" style="margin-top:15px; border-top: 2px solid #eee; padding-top:10px;"></div>
-        <button onclick="location.reload()" class="secondary-btn">Logout</button>
-    </div>
-
-    <div id="admin-panel" class="hide">
-        <h3>Admin Dashboard</h3>
-        <div id="admin-score-list" style="margin-bottom:15px;"></div>
-        <button id="export-btn" style="background:#27ae60;">📊 Export Excel</button>
-        <button onclick="location.reload()" class="secondary-btn">Logout</button>
-    </div>
-
-    <div id="quiz-container" class="hide">
-        <h2 id="q-header"></h2>
-        <div id="ans-box"></div>
-        <button id="next-btn" class="hide">Next</button>
-        <button id="finish-btn" class="hide" style="background:#2ecc71;">Finish</button>
-        <div id="post-quiz" class="hide">
-            <div id="score-display"></div>
-            <button onclick="location.reload()" class="secondary-btn">Exit</button>
+        <div id="teacher-panel" class="hide">
+            <h3>Teacher Control</h3>
+            <input type="text" id="room-code-input" placeholder="Room Code">
+            <div id="t-q-list"></div>
+            <button onclick="location.reload()" class="secondary-btn">Logout</button>
         </div>
     </div>
-</div>
-
-<div id="cert-wrap" style="display:none; position:fixed; left:-9999px;">
-    <div id="cert-pdf" style="width:800px; height:600px; padding:50px; border:20px solid #2c3e50; text-align:center; background:white;">
-        <h1>CERTIFICATE</h1>
-        <h2 id="pdf-name" style="font-size:40px; color:#1a73e8;"></h2>
-        <h3 id="pdf-score" style="font-size:30px;"></h3>
-        <p>Date: <span id="pdf-date"></span></p>
-    </div>
-</div>
-
-<script type="module" src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
