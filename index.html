@@ -3,30 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Pro - Secure Admin</title>
+    <title>Quiz Pro - Winnythai Edition</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
     <div class="container">
         <div id="login-container">
-            <h1>Secure Quiz Login</h1>
+            <h1>Quiz System</h1>
             <input type="text" id="username" placeholder="Username">
             <input type="password" id="password" placeholder="Password">
             <button id="login-btn">Login</button>
+            <p>New Student? <a href="#" id="go-to-signup">Create Account</a></p>
+        </div>
+
+        <div id="signup-container" class="hide">
+            <h1>Student Signup</h1>
+            <input type="text" id="new-username" placeholder="Choose Username">
+            <input type="password" id="new-password" placeholder="Choose Password">
+            <button id="signup-submit-btn" style="background:#2ecc71;">Register</button>
+            <button id="back-to-login" class="secondary-btn">Back</button>
+        </div>
+
+        <div id="menu-container" class="hide">
+            <h2 id="menu-welcome"></h2>
+            <button id="start-quiz-btn" style="background:#2ecc71;">Start Live Quiz</button>
+            <button onclick="location.reload()" class="secondary-btn">Logout</button>
+        </div>
+
+        <div id="quiz-container" class="hide">
+            <div id="quiz-timer-bar"><div id="timer-progress"></div></div>
+            <h2 id="q-header"></h2>
+            <div id="ans-box"></div>
+            <button id="next-btn" class="hide">Next Question</button>
+            <button id="finish-btn" class="hide" style="background:#2ecc71;">Finish Quiz</button>
+        </div>
+
+        <div id="teacher-panel" class="hide">
+            <h3>Teacher Control</h3>
+            <input type="text" id="room-code-input" placeholder="Room Code (e.g. math101)">
+            <div class="status-card">
+                <span>Room Status: <strong id="room-status-text" style="color:red">OFFLINE</strong></span>
+                <button id="toggle-live-btn">Go Live</button>
+            </div>
+            <div class="q-box">
+                <input type="text" id="main-q-input" placeholder="Question Text">
+                <div id="choices-area">
+                    <div class="choice-row"><input type="checkbox" class="c-check"><input type="text" class="c-text" placeholder="Choice 1"></div>
+                </div>
+                <button id="add-choice-btn" style="background:#9b59b6; font-size:12px;">+ Add Choice</button>
+                <button id="save-q-btn" style="background:#2ecc71;">Save Question</button>
+            </div>
+            <div id="t-q-list"></div>
+            <button onclick="location.reload()" class="secondary-btn">Logout</button>
         </div>
 
         <div id="admin-panel" class="hide">
             <h3>System Administrator</h3>
             <div id="admin-score-list"></div>
             <button id="export-btn" style="background:#27ae60; margin-top:15px;">📊 Export Scores</button>
-            <button onclick="location.reload()" class="secondary-btn">Logout</button>
-        </div>
-
-        <div id="teacher-panel" class="hide">
-            <h3>Teacher Control</h3>
-            <input type="text" id="room-code-input" placeholder="Room Code">
-            <div id="t-q-list"></div>
             <button onclick="location.reload()" class="secondary-btn">Logout</button>
         </div>
     </div>
