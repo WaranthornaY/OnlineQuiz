@@ -3,50 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Pro - Secure</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Quiz Pro - Secure Winnythai</title>
+    
+    <style>
+        /* --- CSS STYLES --- */
+        * { box-sizing: border-box; }
+        body { 
+            background: #f0f2f5; 
+            font-family: 'Segoe UI', sans-serif; 
+            display: flex; justify-content: center; align-items: center; 
+            min-height: 100vh; margin: 0; 
+        }
+        .container { 
+            background: white; width: 100%; max-width: 400px; 
+            padding: 30px; border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+        }
+        .hide { display: none !important; }
+        h1, h2, h3 { text-align: center; color: #1a73e8; margin-bottom: 20px; }
+        input { 
+            width: 100%; padding: 12px; margin: 10px 0; 
+            border: 1px solid #ddd; border-radius: 8px; font-size: 16px; 
+        }
+        button { 
+            width: 100%; padding: 12px; margin: 10px 0; border: none; 
+            border-radius: 8px; font-weight: bold; cursor: pointer; 
+            color: white; background: #1a73e8; transition: 0.3s;
+        }
+        button:hover { background: #1557b0; }
+        .secondary-btn { background: #6c757d; }
+        .admin-item { 
+            display: flex; justify-content: space-between; 
+            padding: 10px; border-bottom: 1px solid #eee; 
+        }
+        .signup-link { text-align: center; margin-top: 15px; font-size: 14px; }
+        .signup-link span { color: #1a73e8; cursor: pointer; text-decoration: underline; }
+    </style>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
+
     <div class="container">
         <div id="login-container">
             <h1>Login</h1>
             <input type="text" id="username" placeholder="Username">
             <input type="password" id="password" placeholder="Password">
             <button id="login-btn">Login</button>
-            <p style="text-align:center">
-                New? <button id="btn-to-signup" style="background:none; color:#1a73e8; width:auto; text-decoration:underline; display:inline;">Create Account</button>
-            </p>
+            <div class="signup-link">
+                New student? <span id="btn-to-signup">Create Account</span>
+            </div>
         </div>
 
         <div id="signup-container" class="hide">
-            <h1>New Account</h1>
+            <h1>New Student</h1>
             <input type="text" id="new-username" placeholder="Choose Username">
             <input type="password" id="new-password" placeholder="Choose Password">
-            <button id="signup-submit-btn" style="background:#2ecc71;">Register Now</button>
-            <button id="back-to-login" class="secondary-btn">Back</button>
+            <button id="signup-submit-btn" style="background:#2ecc71;">Register</button>
+            <button id="back-to-login" class="secondary-btn">Back to Login</button>
         </div>
 
         <div id="menu-container" class="hide">
             <h2 id="menu-welcome"></h2>
-            <button id="start-quiz-btn" style="background:#2ecc71;">Start Quiz</button>
+            <button style="background:#2ecc71;">Start Live Quiz</button>
             <button onclick="location.reload()" class="secondary-btn">Logout</button>
         </div>
 
         <div id="admin-panel" class="hide">
             <h3>Admin Dashboard</h3>
             <div id="admin-score-list"></div>
-            <button id="export-btn" style="background:#27ae60;">Export Excel</button>
+            <button id="export-btn" style="background:#27ae60; margin-top:10px;">📊 Export Scores</button>
             <button onclick="location.reload()" class="secondary-btn">Logout</button>
         </div>
 
         <div id="teacher-panel" class="hide">
             <h3>Teacher Control</h3>
-            <input type="text" id="room-code-input" placeholder="Room Code">
-            <button id="save-room-btn">Create/Save Room</button>
+            <input type="text" placeholder="Room Code">
+            <button>Toggle Room Online</button>
             <button onclick="location.reload()" class="secondary-btn">Logout</button>
         </div>
     </div>
-    <script type="module" src="script.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCmgXIu6snhLCYQz8b_aSGVQc99zg17MjE",
+            authDomain: "onlinequiz-197c0.firebaseapp.com",
+            projectId: "onlinequiz-197c0",
+            storageBucket: "onlinequiz-197c0.appspot.com",
+            messagingSenderId: "287222056808",
+            appId: "1:287222056808:web:39ee1f2582eb55485938dd"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // --- NAVIGATION ENGINE ---
+        function show(id) {
+            const ids = ['login-container', 'signup-container', 'menu-container', 'admin-panel', 'teacher-panel'];
+            ids.forEach(sectionId => {
+                document.getElementById(sectionId).classList.add('hide');
+            });
+            document.getElementById(id).classList.remove('hide');
+        }
+
+        // --- EVENT LISTENERS ---
+        document.getElementById('btn-to-signup').onclick = () => show('signup-container');
+        document.getElementById('back-to-login').onclick = () => show('login-container');
+
+        // --- SIGNUP LOGIC ---
+        document.getElementById('signup-submit-btn').onclick = async () => {
+            const u = document.getElementById('new-username').value.trim().toLowerCase();
+            const p = document.getElementById('new-password').value;
+            if(!u || !p) return alert("Please enter username and password");
+
+            try {
+                const userRef = doc(db, "users", u);
+                const snap = await getDoc(userRef);
+                if(snap.exists()) return alert("Username already exists!");
+
+                await setDoc(userRef, { password: p });
+                alert("Account Created! You can now login.");
+                show('login-container');
+            } catch(e) { alert("Firebase Error. Check your Rules!"); }
+        };
+
+        // --- LOGIN LOGIC ---
+        document.getElementById('login-btn').onclick = async () => {
+            const u = document.getElementById('username').value.trim().toLowerCase();
+            const p = document.getElementById('password').value;
+
+            // ADMIN LOGIN (USB Check)
+            if (u === "admin") {
+                const adminSnap = await getDoc(doc(db, "system_config", "admin_creds"));
+                if (p === adminSnap.data().pass) {
+                    const verified = await verifyUSB();
+                    if (verified) {
+                        renderAdmin();
+                        show('admin-panel');
+                    } else alert("Invalid USB Key");
+                } else alert("Wrong Password");
+                return;
+            }
+
+            // TEACHER LOGIN
+            if (u === "teacher" && p === "Teacher123") return show('teacher-panel');
+
+            // STUDENT LOGIN
+            const userSnap = await getDoc(doc(db, "users", u));
+            if (userSnap.exists() && userSnap.data().password === p) {
+                document.getElementById('menu-welcome').innerText = "Hello, " + u;
+                show('menu-container');
+            } else alert("User not found or wrong password");
+        };
+
+        // --- USB KEY CHECK ---
+        async function verifyUSB() {
+            try {
+                const [handle] = await window.showOpenFilePicker();
+                const file = await handle.getFile();
+                const content = await file.text();
+                return file.name === "masterkey.txt" && content.trim() === "WINNYTHAI";
+            } catch(e) { return false; }
+        }
+
+        // --- ADMIN VIEW ---
+        async function renderAdmin() {
+            const snap = await getDocs(collection(db, "results"));
+            const box = document.getElementById('admin-score-list');
+            box.innerHTML = "";
+            snap.forEach(d => {
+                const r = d.data();
+                box.innerHTML += `<div class="admin-item"><span>${r.user}</span><strong>${r.pct}%</strong></div>`;
+            });
+        }
+    </script>
 </body>
 </html>
