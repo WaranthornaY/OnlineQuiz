@@ -1,29 +1,16 @@
 * { box-sizing: border-box; }
-body { background: #f4f7f9; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-.container { background: white; width: 440px; padding: 25px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); max-height: 95vh; overflow-y: auto; }
+body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+.container { background: white; width: 420px; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
 .hide { display: none !important; }
-button { width: 100%; padding: 12px; margin: 6px 0; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; background: #1a73e8; }
-input { width: 100%; padding: 12px; margin: 6px 0; border: 1px solid #ddd; border-radius: 6px; }
-.success-btn { background: #2ecc71; }
-.secondary-btn { background: #95a5a6; }
-.status-card { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px; margin-bottom: 10px; }
-.status-card button { width: auto; padding: 5px 15px; margin: 0; }
-.q-box { background: #fcfcfc; border: 1px solid #eee; padding: 15px; border-radius: 8px; }
-.choice-row { display: flex; gap: 5px; margin-bottom: 5px; }
-.small-btn { width: auto; font-size: 11px; padding: 5px 10px; background: #34495e; }
-.t-q-item { background: #fff; border: 1px solid #eee; padding: 10px; margin-bottom: 5px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
-.del-btn { background: #e74c3c; width: auto; padding: 4px 8px; margin: 0; font-size: 11px; }
 
-/* ADMIN LAYOUT: Score to the Right */
-.admin-item { position: relative; padding: 10px; border-bottom: 1px solid #eee; cursor: help; display: flex; justify-content: space-between; align-items: center; }
-.admin-name { flex: 1; text-align: left; font-weight: bold; }
-.admin-score { width: 60px; text-align: right; color: #27ae60; font-weight: 800; }
-.tooltip { display: none; position: absolute; left: 100%; top: 0; width: 180px; background: #2c3e50; color: white; padding: 10px; border-radius: 6px; z-index: 99; font-size: 10px; box-shadow: 2px 2px 10px rgba(0,0,0,0.2); }
+button { width: 100%; padding: 12px; margin: 8px 0; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; background: #1a73e8; }
+input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; }
+
+/* Admin Alignment: Name Left, Score Right */
+.admin-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #eee; position: relative; }
+.admin-name { font-weight: 600; color: #333; }
+.admin-score { font-weight: 800; color: #2ecc71; }
+
+.tooltip { display: none; position: absolute; left: 105%; top: 0; width: 220px; background: #2c3e50; color: white; padding: 12px; border-radius: 8px; z-index: 10; font-size: 11px; box-shadow: 5px 5px 15px rgba(0,0,0,0.2); }
 .admin-item:hover .tooltip { display: block; }
-
-#quiz-timer-bar { width: 100%; background: #eee; height: 8px; border-radius: 4px; margin-bottom: 15px; position: relative; overflow: hidden; }
-#timer-progress { background: #e74c3c; width: 100%; height: 100%; transition: width 1s linear; }
-#timer-text { position: absolute; right: 0; top: -16px; font-size: 10px; color: #e74c3c; font-weight: bold; }
-.table-scroll { max-height: 200px; overflow-y: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 11px; }
-table td { padding: 8px; border-bottom: 1px solid #eee; }
+.secondary-btn { background: #6c757d; }
