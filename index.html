@@ -3,63 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Pro - Secure Edition</title>
+    <title>Quiz Pro - Secure</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
     <div class="container">
         <div id="login-container">
-            <h1>Quiz Login</h1>
+            <h1>Login</h1>
             <input type="text" id="username" placeholder="Username">
             <input type="password" id="password" placeholder="Password">
             <button id="login-btn">Login</button>
-            <p style="text-align:center; font-size: 14px;">
-                New student? <button id="btn-to-signup" style="background:none; color:#1a73e8; width:auto; padding:0; text-decoration:underline;">Create Account</button>
+            <p style="text-align:center">
+                New? <button id="btn-to-signup" style="background:none; color:#1a73e8; width:auto; text-decoration:underline; display:inline;">Create Account</button>
             </p>
         </div>
 
         <div id="signup-container" class="hide">
-            <h1>Create Account</h1>
-            <input type="text" id="new-username" placeholder="New Username">
-            <input type="password" id="new-password" placeholder="New Password">
-            <button id="signup-submit-btn" style="background:#2ecc71;">Register</button>
-            <button id="back-to-login" class="secondary-btn">Back to Login</button>
+            <h1>New Account</h1>
+            <input type="text" id="new-username" placeholder="Choose Username">
+            <input type="password" id="new-password" placeholder="Choose Password">
+            <button id="signup-submit-btn" style="background:#2ecc71;">Register Now</button>
+            <button id="back-to-login" class="secondary-btn">Back</button>
         </div>
 
         <div id="menu-container" class="hide">
             <h2 id="menu-welcome"></h2>
-            <button id="start-quiz-btn" style="background:#2ecc71;">Start Live Quiz</button>
-            <button onclick="location.reload()" class="secondary-btn">Logout</button>
-        </div>
-
-        <div id="quiz-container" class="hide">
-            <div id="quiz-timer-bar"><div id="timer-progress"></div></div>
-            <h2 id="q-header"></h2>
-            <div id="ans-box"></div>
-            <button id="next-btn" class="hide">Next Question</button>
-            <button id="finish-btn" class="hide" style="background:#2ecc71;">Finish Quiz</button>
-        </div>
-
-        <div id="teacher-panel" class="hide">
-            <h3>Teacher Control</h3>
-            <input type="text" id="room-code-input" placeholder="Room Code (e.g. class1)">
-            <button id="toggle-live-btn" style="background:#f39c12;">Toggle Room Online</button>
-            <div class="q-box" style="border:1px solid #ddd; padding:10px; margin-top:10px;">
-                <input type="text" id="main-q-input" placeholder="Question">
-                <div id="choices-area">
-                    <div class="choice-row"><input type="checkbox" class="c-check"><input type="text" class="c-text" placeholder="Choice 1"></div>
-                </div>
-                <button id="add-choice-btn" style="background:#9b59b6; font-size:12px; height:30px; margin-top:5px;">+ Add Choice</button>
-                <button id="save-q-btn" style="background:#2ecc71;">Save Question to Room</button>
-            </div>
+            <button id="start-quiz-btn" style="background:#2ecc71;">Start Quiz</button>
             <button onclick="location.reload()" class="secondary-btn">Logout</button>
         </div>
 
         <div id="admin-panel" class="hide">
-            <h3>System Administrator</h3>
+            <h3>Admin Dashboard</h3>
             <div id="admin-score-list"></div>
-            <button id="export-btn" style="background:#27ae60; margin-top:15px;">📊 Export Scores</button>
+            <button id="export-btn" style="background:#27ae60;">Export Excel</button>
+            <button onclick="location.reload()" class="secondary-btn">Logout</button>
+        </div>
+
+        <div id="teacher-panel" class="hide">
+            <h3>Teacher Control</h3>
+            <input type="text" id="room-code-input" placeholder="Room Code">
+            <button id="save-room-btn">Create/Save Room</button>
             <button onclick="location.reload()" class="secondary-btn">Logout</button>
         </div>
     </div>
