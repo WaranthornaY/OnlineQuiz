@@ -3,182 +3,335 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Pro - Secure Winnythai</title>
-    
+    <title>OnlineQuiz | Gold Edition</title>
     <style>
-        /* --- CSS STYLES --- */
-        * { box-sizing: border-box; }
-        body { 
-            background: #f0f2f5; 
-            font-family: 'Segoe UI', sans-serif; 
-            display: flex; justify-content: center; align-items: center; 
-            min-height: 100vh; margin: 0; 
+        :root {
+            --p: #b08d3e; --p-h: #8e6f2e; --bg: #fdfcf8; --card: #ffffff;
+            --txt: #1e293b; --mut: #64748b; --err: #ef4444; --succ: #22c55e;
+            --bord: #e2e8f0;
         }
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        body { background: var(--bg); color: var(--txt); font-family: 'Inter', system-ui, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        
         .container { 
-            background: white; width: 100%; max-width: 400px; 
-            padding: 30px; border-radius: 15px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            background: var(--card); width: 100%; max-width: 500px; padding: 35px; 
+            border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05);
+            max-height: 95vh; overflow-y: auto; border: 1px solid var(--bord);
         }
-        .hide { display: none !important; }
-        h1, h2, h3 { text-align: center; color: #1a73e8; margin-bottom: 20px; }
-        input { 
-            width: 100%; padding: 12px; margin: 10px 0; 
-            border: 1px solid #ddd; border-radius: 8px; font-size: 16px; 
-        }
-        button { 
-            width: 100%; padding: 12px; margin: 10px 0; border: none; 
-            border-radius: 8px; font-weight: bold; cursor: pointer; 
-            color: white; background: #1a73e8; transition: 0.3s;
-        }
-        button:hover { background: #1557b0; }
-        .secondary-btn { background: #6c757d; }
-        .admin-item { 
-            display: flex; justify-content: space-between; 
-            padding: 10px; border-bottom: 1px solid #eee; 
-        }
-        .signup-link { text-align: center; margin-top: 15px; font-size: 14px; }
-        .signup-link span { color: #1a73e8; cursor: pointer; text-decoration: underline; }
-    </style>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+        .hide { display: none !important; }
+        h1, h2, h3 { text-align: center; color: var(--p); margin: 0 0 20px 0; font-family: serif; }
+        
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1.5px solid var(--bord); border-radius: 12px; font-size: 15px; outline-color: var(--p); }
+        button { width: 100%; padding: 13px; margin: 8px 0; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; color: white; background: var(--p); transition: 0.2s; }
+        button:hover { background: var(--p-h); transform: translateY(-1px); }
+        
+        .btn-sec { background: #f1f5f9; color: var(--txt); }
+        .btn-dan { background: var(--err); }
+        .btn-suc { background: var(--succ); }
+
+        .q-card { background: #fdfcf8; padding: 15px; border-radius: 16px; margin-top: 10px; border: 1px solid #eaddca; }
+        .history-item { background: white; border: 1px solid var(--bord); padding: 12px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .badge { font-size: 10px; padding: 3px 8px; border-radius: 20px; font-weight: bold; }
+        .timer { font-size: 28px; font-weight: 800; color: var(--err); text-align: center; margin-bottom: 15px; }
+        .opt-btn { background: #fff; border: 1.5px solid var(--bord); color: var(--txt); text-align: left; margin: 6px 0; width: 100%; }
+        .opt-btn:hover { border-color: var(--p); background: #fdfcf8; }
+        
+        #history-list { max-height: 300px; overflow-y: auto; margin-top: 10px; }
+        hr { border: 0; border-top: 1px solid var(--bord); margin: 20px 0; }
+    </style>
 </head>
 <body>
 
-    <div class="container">
-        <div id="login-container">
-            <h1>Login</h1>
-            <input type="text" id="username" placeholder="Username">
-            <input type="password" id="password" placeholder="Password">
-            <button id="login-btn">Login</button>
-            <div class="signup-link">
-                New student? <span id="btn-to-signup">Create Account</span>
-            </div>
-        </div>
-
-        <div id="signup-container" class="hide">
-            <h1>New Student</h1>
-            <input type="text" id="new-username" placeholder="Choose Username">
-            <input type="password" id="new-password" placeholder="Choose Password">
-            <button id="signup-submit-btn" style="background:#2ecc71;">Register</button>
-            <button id="back-to-login" class="secondary-btn">Back to Login</button>
-        </div>
-
-        <div id="menu-container" class="hide">
-            <h2 id="menu-welcome"></h2>
-            <button style="background:#2ecc71;">Start Live Quiz</button>
-            <button onclick="location.reload()" class="secondary-btn">Logout</button>
-        </div>
-
-        <div id="admin-panel" class="hide">
-            <h3>Admin Dashboard</h3>
-            <div id="admin-score-list"></div>
-            <button id="export-btn" style="background:#27ae60; margin-top:10px;">📊 Export Scores</button>
-            <button onclick="location.reload()" class="secondary-btn">Logout</button>
-        </div>
-
-        <div id="teacher-panel" class="hide">
-            <h3>Teacher Control</h3>
-            <input type="text" placeholder="Room Code">
-            <button>Toggle Room Online</button>
-            <button onclick="location.reload()" class="secondary-btn">Logout</button>
-        </div>
+<div class="container">
+    <div id="scr-login">
+        <h1>OnlineQuiz</h1>
+        <input type="text" id="login-u" placeholder="Username">
+        <input type="password" id="login-p" placeholder="Password">
+        <button id="btn-login">Sign In</button>
+        <button id="to-signup" class="btn-sec">New Student Account</button>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <div id="scr-signup" class="hide">
+        <h1>Register</h1>
+        <input type="text" id="reg-u" placeholder="Username">
+        <input type="password" id="reg-p" placeholder="Password">
+        <button id="btn-register" class="btn-suc">Create Account</button>
+        <button id="back-login" class="btn-sec">Back</button>
+    </div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCmgXIu6snhLCYQz8b_aSGVQc99zg17MjE",
-            authDomain: "onlinequiz-197c0.firebaseapp.com",
-            projectId: "onlinequiz-197c0",
-            storageBucket: "onlinequiz-197c0.appspot.com",
-            messagingSenderId: "287222056808",
-            appId: "1:287222056808:web:39ee1f2582eb55485938dd"
-        };
+    <div id="scr-menu" class="hide">
+        <h2 id="hi-user">Welcome</h2>
+        <div class="q-card">
+            <input type="text" id="room-code" placeholder="Enter Room Number">
+            <button id="btn-join" class="btn-suc">Join & Start Quiz</button>
+        </div>
+        <h4 style="margin:20px 0 5px 0">My Quiz History</h4>
+        <div id="history-list"></div>
+        <button onclick="location.reload()" class="btn-sec" style="margin-top:20px;">Logout</button>
+    </div>
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+    <div id="scr-quiz" class="hide">
+        <div id="q-timer" class="timer">00:00</div>
+        <h3 id="q-text">Loading Question...</h3>
+        <div id="q-options"></div>
+    </div>
 
-        // --- NAVIGATION ENGINE ---
-        function show(id) {
-            const ids = ['login-container', 'signup-container', 'menu-container', 'admin-panel', 'teacher-panel'];
-            ids.forEach(sectionId => {
-                document.getElementById(sectionId).classList.add('hide');
-            });
-            document.getElementById(id).classList.remove('hide');
+    <div id="scr-teacher" class="hide">
+        <h3>Teacher Panel</h3>
+        <div style="display:flex; gap:5px;">
+            <input type="text" id="t-room" placeholder="Room #">
+            <button id="t-load" class="btn-sec" style="width:100px;">Load</button>
+        </div>
+        <input type="number" id="t-time" placeholder="Timer (Mins)" value="10">
+        <div class="q-card">
+            <input type="text" id="new-q" placeholder="The Question...">
+            <div id="t-choices">
+                <div style="display:flex; gap:5px; margin-bottom:5px;">
+                    <input type="checkbox" class="is-cor" style="width:20px">
+                    <input type="text" class="c-txt" placeholder="Option" style="margin:0">
+                </div>
+            </div>
+            <button id="t-add-opt" class="btn-sec" style="font-size:12px; padding:5px;">+ Choice</button>
+            <button id="t-save-q">Add to Pool</button>
+        </div>
+        <div id="t-preview"></div>
+        <button id="t-on" class="btn-suc">🚀 Make Room Live</button>
+        <button id="t-off" class="btn-dan">Stop Quiz</button>
+        <button onclick="location.reload()" class="btn-sec">Logout</button>
+    </div>
+
+    <div id="scr-admin" class="hide">
+        <h3>System Admin</h3>
+        <div id="adm-users" class="q-card"></div>
+        <h4>All Student Scores</h4>
+        <div id="adm-scores"></div>
+        <button onclick="location.reload()" class="btn-sec">Logout</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCmgXIu6snhLCYQz8b_aSGVQc99zg17MjE",
+        authDomain: "onlinequiz-197c0.firebaseapp.com",
+        projectId: "onlinequiz-197c0",
+        storageBucket: "onlinequiz-197c0.appspot.com",
+        messagingSenderId: "287222056808",
+        appId: "1:287222056808:web:39ee1f2582eb55485938dd"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let activeU = "", quizPool = [], qIdx = 0, score = 0, teacherPool = [], clock;
+
+    const nav = (id) => {
+        document.querySelectorAll('.container > div').forEach(d => d.classList.add('hide'));
+        document.getElementById(id).classList.remove('hide');
+    };
+
+    async function verifyUSB() {
+        try {
+            const [h] = await window.showOpenFilePicker();
+            const f = await h.getFile();
+            const c = await f.text();
+            return f.name === "masterkey.txt" && c.trim() === "WINNYTHAI";
+        } catch(e) { return false; }
+    }
+
+    // --- LOGIN/REG ---
+    document.getElementById('to-signup').onclick = () => nav('scr-signup');
+    document.getElementById('back-login').onclick = () => nav('scr-login');
+
+    document.getElementById('btn-register').onclick = async () => {
+        const u = document.getElementById('reg-u').value.trim().toLowerCase();
+        const p = document.getElementById('reg-p').value;
+        if(!u || !p) return alert("Missing info");
+        await setDoc(doc(db, "users", u), { pass: p });
+        alert("Success! Please log in."); nav('scr-login');
+    };
+
+    document.getElementById('btn-login').onclick = async () => {
+        const u = document.getElementById('login-u').value.trim().toLowerCase();
+        const p = document.getElementById('login-p').value;
+        if(u === 'admin'){
+            const adm = await getDoc(doc(db, "system_config", "admin_creds"));
+            if(p === adm.data().pass && await verifyUSB()){ renderAdmin(); nav('scr-admin'); }
+            else alert("Access Denied."); return;
         }
+        if(u === 'teacher' && p === 'Teacher123') return nav('scr-teacher');
+        const snap = await getDoc(doc(db, "users", u));
+        if(snap.exists() && snap.data().pass === p){
+            activeU = u;
+            document.getElementById('hi-user').innerText = "Hello, " + u;
+            loadHistory(u);
+            nav('scr-menu');
+        } else alert("Invalid Login");
+    };
 
-        // --- EVENT LISTENERS ---
-        document.getElementById('btn-to-signup').onclick = () => show('signup-container');
-        document.getElementById('back-to-login').onclick = () => show('login-container');
+    // --- STUDENT ---
+    async function loadHistory(u) {
+        const box = document.getElementById('history-list'); box.innerHTML = "Updating...";
+        const snap = await getDocs(collection(db, "results"));
+        box.innerHTML = "";
+        let list = [];
+        snap.forEach(d => { if(d.data().user === u) list.push({id: d.id, ...d.data()}); });
+        
+        list.forEach(r => {
+            const item = document.createElement('div'); item.className = "history-item";
+            const canCert = r.pct >= 80;
+            item.innerHTML = `<div><b>${r.pct}%</b> <small>${r.date}</small><br>
+            ${canCert ? `<button style="background:#b08d3e; color:white; border:none; padding:4px 8px; border-radius:6px; font-size:10px; cursor:pointer; margin-top:5px;" onclick="window.genCert('${r.user}','${r.pct}','${r.date}')">Download Certificate</button>` : ''}
+            </div><span class="badge" style="background:${r.pct>=50?'#dcfce7':'#fee2e2'}">${r.pct>=50?'PASS':'FAIL'}</span>`;
+            box.appendChild(item);
+        });
+    }
 
-        // --- SIGNUP LOGIC ---
-        document.getElementById('signup-submit-btn').onclick = async () => {
-            const u = document.getElementById('new-username').value.trim().toLowerCase();
-            const p = document.getElementById('new-password').value;
-            if(!u || !p) return alert("Please enter username and password");
+    document.getElementById('btn-join').onclick = async () => {
+        const c = document.getElementById('room-code').value;
+        const snap = await getDoc(doc(db, "quizzes", c));
+        if(!snap.exists() || !snap.data().active) return alert("Quiz Room Inactive");
+        quizPool = snap.data().questions; qIdx = 0; score = 0;
+        nav('scr-quiz'); startClock(snap.data().timeLimit * 60); renderQuiz();
+    };
 
-            try {
-                const userRef = doc(db, "users", u);
-                const snap = await getDoc(userRef);
-                if(snap.exists()) return alert("Username already exists!");
+    function startClock(s) {
+        let t = s;
+        clock = setInterval(() => {
+            let m = Math.floor(t/60), sec = t%60;
+            document.getElementById('q-timer').innerText = `${m}:${sec<10?'0':''}${sec}`;
+            if(t <= 0){ clearInterval(clock); endQuiz(); }
+            t--;
+        }, 1000);
+    }
 
-                await setDoc(userRef, { password: p });
-                alert("Account Created! You can now login.");
-                show('login-container');
-            } catch(e) { alert("Firebase Error. Check your Rules!"); }
-        };
+    function renderQuiz() {
+        if(qIdx >= quizPool.length) return endQuiz();
+        const it = quizPool[qIdx];
+        document.getElementById('q-text').innerText = it.q;
+        const box = document.getElementById('q-options'); box.innerHTML = "";
+        it.opts.forEach(o => {
+            const b = document.createElement('button'); b.className = "opt-btn"; b.innerText = o.text;
+            b.onclick = () => { if(o.cor) score++; qIdx++; renderQuiz(); };
+            box.appendChild(b);
+        });
+    }
 
-        // --- LOGIN LOGIC ---
-        document.getElementById('login-btn').onclick = async () => {
-            const u = document.getElementById('username').value.trim().toLowerCase();
-            const p = document.getElementById('password').value;
+    async function endQuiz() {
+        clearInterval(clock);
+        const p = Math.round((score/quizPool.length)*100);
+        const d = new Date();
+        await setDoc(doc(db, "results", activeU+"_"+Date.now()), { user: activeU, pct: p, date: d.toLocaleDateString(), time: d.toLocaleTimeString() });
+        alert("Quiz Done! Score: "+p+"%");
+        await loadHistory(activeU); // Refresh list
+        nav('scr-menu'); // Jump to history tab
+    }
 
-            // ADMIN LOGIN (USB Check)
-            if (u === "admin") {
-                const adminSnap = await getDoc(doc(db, "system_config", "admin_creds"));
-                if (p === adminSnap.data().pass) {
-                    const verified = await verifyUSB();
-                    if (verified) {
-                        renderAdmin();
-                        show('admin-panel');
-                    } else alert("Invalid USB Key");
-                } else alert("Wrong Password");
-                return;
-            }
+    // --- TEACHER ---
+    document.getElementById('t-load').onclick = async () => {
+        const c = document.getElementById('t-room').value;
+        const snap = await getDoc(doc(db, "quizzes", c));
+        teacherPool = snap.exists() ? snap.data().questions : [];
+        renderTeacherList();
+    };
 
-            // TEACHER LOGIN
-            if (u === "teacher" && p === "Teacher123") return show('teacher-panel');
+    document.getElementById('t-add-opt').onclick = () => {
+        const d = document.createElement('div'); d.style="display:flex; gap:5px; margin-bottom:5px;";
+        d.innerHTML = `<input type="checkbox" class="is-cor" style="width:20px"><input type="text" class="c-txt" placeholder="Option" style="margin:0">`;
+        document.getElementById('t-choices').appendChild(d);
+    };
 
-            // STUDENT LOGIN
-            const userSnap = await getDoc(doc(db, "users", u));
-            if (userSnap.exists() && userSnap.data().password === p) {
-                document.getElementById('menu-welcome').innerText = "Hello, " + u;
-                show('menu-container');
-            } else alert("User not found or wrong password");
-        };
+    document.getElementById('t-save-q').onclick = () => {
+        const q = document.getElementById('new-q').value;
+        const opts = Array.from(document.querySelectorAll('#t-choices > div')).map(div => ({
+            text: div.querySelector('.c-txt').value, cor: div.querySelector('.is-cor').checked
+        }));
+        teacherPool.push({q, opts}); renderTeacherList();
+    };
 
-        // --- USB KEY CHECK ---
-        async function verifyUSB() {
-            try {
-                const [handle] = await window.showOpenFilePicker();
-                const file = await handle.getFile();
-                const content = await file.text();
-                return file.name === "masterkey.txt" && content.trim() === "WINNYTHAI";
-            } catch(e) { return false; }
+    function renderTeacherList() {
+        const p = document.getElementById('t-preview'); p.innerHTML = "";
+        teacherPool.forEach((it, i) => {
+            const card = document.createElement('div'); card.className = "q-card";
+            card.innerHTML = `<b>${i+1}. ${it.q}</b> <button onclick="window.delQ(${i})" style="background:red; color:white; border:none; border-radius:4px; float:right;">X</button>`;
+            p.appendChild(card);
+        });
+    }
+    window.delQ = (i) => { teacherPool.splice(i, 1); renderTeacherList(); };
+
+    document.getElementById('t-on').onclick = async () => {
+        const c = document.getElementById('t-room').value;
+        const t = document.getElementById('t-time').value;
+        await setDoc(doc(db, "quizzes", c), { questions: teacherPool, active: true, timeLimit: t });
+        alert("Room is Live!");
+    };
+
+    document.getElementById('t-off').onclick = async () => {
+        const c = document.getElementById('t-room').value;
+        await updateDoc(doc(db, "quizzes", c), { active: false });
+        alert("Room Stopped.");
+    };
+
+    // --- ADMIN MASTER ---
+    async function renderAdmin() {
+        const uBox = document.getElementById('adm-users'); uBox.innerHTML = "";
+        const uSnap = await getDocs(collection(db, "users"));
+        uSnap.forEach(d => {
+            uBox.innerHTML += `<div style="display:flex; justify-content:space-between; margin:5px 0;"><span>${d.id}</span> <button onclick="window.wipeU('${d.id}')" style="background:red; color:white; border:none; padding:2px 5px; border-radius:4px; font-size:10px;">Delete Account</button></div>`;
+        });
+
+        const sBox = document.getElementById('adm-scores'); sBox.innerHTML = "";
+        const sSnap = await getDocs(collection(db, "results"));
+        sSnap.forEach(d => {
+            const r = d.data();
+            sBox.innerHTML += `<div class="q-card"><b>${r.user}</b>: ${r.pct}% <br><small>${r.date}</small> <button onclick="window.delS('${d.id}')" style="color:red; border:none; background:none; cursor:pointer;">Delete Score</button></div>`;
+        });
+    }
+
+    window.delS = async (id) => { await deleteDoc(doc(db, "results", id)); renderAdmin(); };
+    window.wipeU = async (u) => {
+        if(confirm("Wipe student and history?") && await verifyUSB()){
+            await deleteDoc(doc(db, "users", u));
+            const s = await getDocs(collection(db, "results"));
+            s.forEach(async (d) => { if(d.data().user === u) await deleteDoc(doc(db, "results", d.id)); });
+            renderAdmin();
         }
+    };
 
-        // --- ADMIN VIEW ---
-        async function renderAdmin() {
-            const snap = await getDocs(collection(db, "results"));
-            const box = document.getElementById('admin-score-list');
-            box.innerHTML = "";
-            snap.forEach(d => {
-                const r = d.data();
-                box.innerHTML += `<div class="admin-item"><span>${r.user}</span><strong>${r.pct}%</strong></div>`;
-            });
-        }
-    </script>
+    // --- THE CERTIFICATE ---
+    window.genCert = (name, score, date) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 2000; canvas.height = 1414;
+
+        const bg = new Image();
+        bg.src = 'certificate.png'; // Must be in the same folder
+
+        bg.onload = () => {
+            ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#b08d3e'; 
+
+            // Student Name
+            ctx.font = 'bold 90px serif'; 
+            ctx.fillText(name.toUpperCase(), 1000, 720); 
+
+            // Result Text
+            ctx.font = 'italic 40px sans-serif';
+            ctx.fillText(`With a final examination score of ${score}%`, 1000, 820);
+            ctx.font = '30px sans-serif';
+            ctx.fillText(`Date: ${date}`, 1000, 880);
+
+            const link = document.createElement('a');
+            link.download = `Cert_${name}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        };
+        bg.onerror = () => alert("certificate.png not found in folder!");
+    };
+</script>
 </body>
 </html>
