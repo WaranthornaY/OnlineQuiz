@@ -1,31 +1,154 @@
 :root {
-    --p: #2563eb;       /* Primary Blue */
-    --p-h: #1d4ed8;     /* Hover Blue */
-    --bg: #f8fafc;      /* Light Grey Background */
-    --card: #ffffff;    /* Pure White Cards */
-    --txt: #1e293b;     /* Dark Slate Text */
-    --mut: #64748b;     /* Muted Grey Text */
-    --err: #ef4444;     /* Error Red */
-    --succ: #22c55e;    /* Success Green */
-    --bord: #e2e8f0;    /* Soft Border */
+    /* Gold & Slate Theme Colors */
+    --p: #b08d3e; 
+    --p-h: #8e6f2e; 
+    --txt: #1e293b; 
+    --mut: #64748b; 
+    --err: #ef4444; 
+    --succ: #22c55e; 
+    --bord: #e2e8f0;
 }
 
-/* Container: The "Glassmorphism" look */
+/* Reset and smooth scroll */
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+}
+
+body { 
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100vh;
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    
+    /* 1. SOLID FALLBACK COLOR (Matches a dark Canva design) */
+    background-color: #0f172a; 
+
+    /* 2. THE IMAGE (No darkening gradient used here) */
+    background-image: url('background.jpg'); 
+    
+    /* 3. AUTO-ADJUSTING SETTINGS */
+    background-size: cover;       /* Fills the screen perfectly */
+    background-position: center;  /* Keeps your design centered */
+    background-repeat: no-repeat;
+    background-attachment: fixed; /* Professional "still" look while scrolling */
+    
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+}
+
+/* THE MAIN CARD */
 .container { 
-    background: var(--card); 
-    padding: 35px; 
-    border-radius: 24px; 
-    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-    border: 1px solid var(--bord);
+    position: relative; 
+    z-index: 10;
+    
+    background: #ffffff; /* Clean white card to contrast with dark BG */
+    width: 90%; 
+    max-width: 420px; 
+    padding: 40px; 
+    border-radius: 28px; 
+    
+    /* Deep shadow to make the white box "float" over your dark background */
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+    
+    max-height: 90vh; 
+    overflow-y: auto;
 }
 
-/* History Cards: Clean and Scannable */
+/* UTILITIES */
+.hide { display: none !important; }
+
+h1, h2, h3 { 
+    text-align: center; 
+    color: var(--p); 
+    margin-bottom: 25px; 
+    font-family: serif; /* Classic look for the headers */
+}
+
+/* INPUTS */
+input { 
+    width: 100%; 
+    padding: 14px 18px; 
+    margin: 10px 0; 
+    border: 1.5px solid var(--bord); 
+    border-radius: 14px; 
+    font-size: 15px; 
+    outline: none;
+    transition: 0.3s ease;
+}
+input:focus { 
+    border-color: var(--p); 
+    box-shadow: 0 0 0 3px rgba(176, 141, 62, 0.15);
+}
+
+/* BUTTONS */
+button { 
+    width: 100%; 
+    padding: 15px; 
+    margin: 12px 0; 
+    border: none; 
+    border-radius: 14px; 
+    font-weight: 700; 
+    font-size: 16px;
+    cursor: pointer; 
+    color: white; 
+    background: var(--p); 
+    transition: all 0.3s ease;
+}
+button:hover { 
+    background: var(--p-h); 
+    transform: translateY(-2px); 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.btn-sec { background: #f1f5f9; color: var(--txt); }
+.btn-sec:hover { background: #e2e8f0; }
+.btn-suc { background: var(--succ); }
+.btn-dan { background: var(--err); }
+
+/* QUIZ SPECIFIC */
+.q-card { 
+    background: #fdfcf8; 
+    padding: 20px; 
+    border-radius: 20px; 
+    margin-top: 20px; 
+    border: 1px solid #eaddca; 
+}
+
+.opt-btn { 
+    background: #fff; 
+    border: 1.5px solid var(--bord); 
+    color: var(--txt); 
+    text-align: left; 
+}
+.opt-btn:hover { 
+    border-color: var(--p); 
+    background: #fdfcf8; 
+}
+
+.timer { 
+    font-size: 36px; 
+    font-weight: 900; 
+    color: var(--err); 
+    text-align: center; 
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+}
+
 .history-item { 
     background: white; 
     border: 1px solid var(--bord); 
-    padding: 12px; 
-    border-radius: 12px; 
-    margin-bottom: 10px; 
-    transition: box-shadow 0.2s;
+    padding: 16px; 
+    border-radius: 16px; 
+    margin-bottom: 12px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
 }
-.history-item:hover { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+
+/* Custom Scrollbar for the white card */
+.container::-webkit-scrollbar { width: 5px; }
+.container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
